@@ -15,18 +15,24 @@
                     return;
                 }
 
-                // جلب المعلومات من ipinfo.io
-                const response = await fetch('https://ipinfo.io/json');
-                const data = await response.json();
+                // بيانات وهمية للاختبار (بدون خدمات خارجية)
+                const testData = {
+                    ip: '192.168.1.1',
+                    country: 'مصر',
+                    city: 'القاهرة',
+                    region: 'القاهرة',
+                    org: 'مزود تجريبي',
+                    loc: '30.0444,31.2357'
+                };
 
                 const message = `
-🕵️ **تم تسجيل دخول جديد!**
-📌 **IP:** ${data.ip}
-📍 **الدولة:** ${data.country || 'غير معروف'}
-🏙️ **المدينة:** ${data.city || 'غير معروف'}
-🗺️ **المنطقة:** ${data.region || 'غير معروف'}
-🌐 **المزود:** ${data.org || 'غير معروف'}
-📍 **الموقع:** ${data.loc || 'غير معروف'}
+🕵️ **تم تسجيل دخول جديد! (اختبار)**
+📌 **IP:** ${testData.ip}
+📍 **الدولة:** ${testData.country}
+🏙️ **المدينة:** ${testData.city}
+🗺️ **المنطقة:** ${testData.region}
+🌐 **المزود:** ${testData.org}
+📍 **الموقع:** ${testData.loc}
                 `;
 
                 await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
@@ -39,7 +45,7 @@
                     })
                 });
 
-                document.body.innerHTML = '<h1>✅ تم الإرسال بنجاح</h1>';
+                document.body.innerHTML = '<h1>✅ تم الإرسال بنجاح (اختبار)</h1>';
 
             } catch (error) {
                 console.error('خطأ:', error);
